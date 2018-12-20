@@ -3,7 +3,7 @@ from graphics import *
 from math import *
 #import numpy as np
 
-#参数列表
+# 参数列表
 
 GRID_WIDTH = 40
 COLUMN = 15
@@ -46,6 +46,7 @@ def ai_step():
     negamax(True, DEPTH, -99999999, 99999999)
     return next_point[0], next_point[1]
 
+
 def negamax(is_ai, depth, alpha, beta):
     '''
     负值极大算法搜索 alpha + beta剪枝
@@ -62,7 +63,6 @@ def negamax(is_ai, depth, alpha, beta):
     # TODO: 对每一个候选步进行递归并剪枝，将最后决策出的next_point赋值，将函数剩下部分补全
     # .....
     blank_list[0]
-
 
 
 def order(blank_list):
@@ -93,6 +93,7 @@ def has_neightnor(pt):
             if (pt[0] + i, pt[1]+j) in All:
                 return True
     return False
+
 
 def evaluation(is_ai):
     '''
@@ -127,10 +128,14 @@ def evaluation(is_ai):
     for pt in enemy_list:
         m = pt[0]
         n = pt[1]
-        enemy_score += cal_score(m, n, 0, 1, my_list, enemy_list, score_all_arr_enemy)
-        enemy_score += cal_score(m, n, 1, 0, my_list, enemy_list, score_all_arr_enemy)
-        enemy_score += cal_score(m, n, 1, 1, my_list, enemy_list, score_all_arr_enemy)
-        enemy_score += cal_score(m, n, -1, 1, my_list, enemy_list, score_all_arr_enemy)
+        enemy_score += cal_score(m, n, 0, 1, my_list,
+                                 enemy_list, score_all_arr_enemy)
+        enemy_score += cal_score(m, n, 1, 0, my_list,
+                                 enemy_list, score_all_arr_enemy)
+        enemy_score += cal_score(m, n, 1, 1, my_list,
+                                 enemy_list, score_all_arr_enemy)
+        enemy_score += cal_score(m, n, -1, 1, my_list,
+                                 enemy_list, score_all_arr_enemy)
 
     total_score = my_score - enemy_score*ratio*0.1
 
@@ -189,20 +194,21 @@ def game_win(list):
                     m, n + 3) in list and (m, n + 4) in list:
                 return True
             elif m < ROW - 4 and (m, n) in list and (m + 1, n) in list and (m + 2, n) in list and (
-                        m + 3, n) in list and (m + 4, n) in list:
+                    m + 3, n) in list and (m + 4, n) in list:
                 return True
             elif m < ROW - 4 and n < ROW - 4 and (m, n) in list and (m + 1, n + 1) in list and (
-                        m + 2, n + 2) in list and (m + 3, n + 3) in list and (m + 4, n + 4) in list:
+                    m + 2, n + 2) in list and (m + 3, n + 3) in list and (m + 4, n + 4) in list:
                 return True
             elif m < ROW - 4 and n > 3 and (m, n) in list and (m + 1, n - 1) in list and (
-                        m + 2, n - 2) in list and (m + 3, n - 3) in list and (m + 4, n - 4) in list:
+                    m + 2, n - 2) in list and (m + 3, n - 3) in list and (m + 4, n - 4) in list:
                 return True
     return False
 
 
 def gobangwin():
     ''' 绘制基本棋盘界面 '''
-    win = GraphWin("this is a gobang game", GRID_WIDTH * COLUMN, GRID_WIDTH * ROW)
+    win = GraphWin("this is a gobang game",
+                   GRID_WIDTH * COLUMN, GRID_WIDTH * ROW)
     win.setBackground("yellow")
     i1 = 0
 
@@ -230,8 +236,8 @@ def main_AI():
     change = 0
     GameOver = False
     while not GameOver:
-        
-        if change % 2 == 0: #黑子
+
+        if change % 2 == 0:  # 黑子
             p = Window.getMouse()
             if not ((round((p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH)) in All):
 
@@ -250,11 +256,12 @@ def main_AI():
                     GameOver = True
                 change = change + 1
 
-        elif change %2 ==1: #白子
+        elif change % 2 == 1:  # 白子
             pos = ai_step()
 
             if pos in All:
-                message = Text(Point(200, 200), "不可用的位置" + str(pos[0]) + "," + str(pos[1]))
+                message = Text(Point(200, 200), "不可用的位置" +
+                               str(pos[0]) + "," + str(pos[1]))
                 message.draw(Window)
                 GameOver = 1
 
@@ -276,6 +283,7 @@ def main_AI():
     Window.getMouse()
     Window.close()
 
+
 def main_Human():
     ''' 人人对战函数 '''
     win = gobangwin()
@@ -290,7 +298,7 @@ def main_Human():
 
         p = win.getMouse()
 
-        if change % 2 ==0 : # 黑子
+        if change % 2 == 0:  # 黑子
             if not ((round((p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH)) in All):
 
                 a = round((p.getX()) / GRID_WIDTH)
@@ -308,7 +316,7 @@ def main_Human():
 
                 change = change + 1
 
-        elif change % 2 == 1: # 白子
+        elif change % 2 == 1:  # 白子
             if not ((round((p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH)) in All):
 
                 a = round((p.getX()) / GRID_WIDTH)
@@ -334,4 +342,4 @@ def main_Human():
 
 if __name__ == '__main__':
     main_AI()
-    #main_Human()
+    # main_Human()
