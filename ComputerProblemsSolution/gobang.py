@@ -1,6 +1,6 @@
 # *-* coding:utf-8 -*-
 from graphics import *
-from math import *
+#from math import *
 #import numpy as np
 
 # 参数列表
@@ -14,7 +14,7 @@ WhiteAi = []  # 白子 or AI
 All = []  # all
 
 list_all = []  # 整个棋盘的点
-next_point = [0, 0]  # AI下一步最应该下的位置
+next_point = [14, 14]  # AI下一步最应该下的位置
 
 ratio = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
 DEPTH = 3  # 搜索深度，只能是单数。
@@ -54,6 +54,7 @@ def negamax(is_ai, depth, alpha, beta):
     :param depth: 搜索深度
     :return: alpha or beta（需要补全）
     '''
+
     # 游戏是否结束 | | 探索的递归深度是否到边界
     if game_win(BlackHuman) or game_win(WhiteAi) or depth == 0:
         return evaluation(is_ai)
@@ -62,7 +63,8 @@ def negamax(is_ai, depth, alpha, beta):
     order(blank_list)   # 搜索顺序排序  提高剪枝效率
     # TODO: 对每一个候选步进行递归并剪枝，将最后决策出的next_point赋值，将函数剩下部分补全
     # .....
-    blank_list[0]
+    global next_point
+    next_point = blank_list[0]
 
 
 def order(blank_list):
@@ -181,7 +183,7 @@ def cal_score(m, n, x_decrict, y_derice, enemy_list, my_list, score_all_arr):
     return add_score + max_score_shape[0]
 
 
-def game_win(list):
+def game_win(List):
     '''
     传入的list判断当前list是否已经连出五子
     :param list:需要判断的棋子列表
@@ -190,17 +192,35 @@ def game_win(list):
     for m in range(COLUMN):
         for n in range(ROW):
 
-            if n < ROW - 4 and (m, n) in list and (m, n + 1) in list and (m, n + 2) in list and (
-                    m, n + 3) in list and (m, n + 4) in list:
+            if (n < ROW - 4
+                    and (m, n) in List
+                    and (m, n + 1) in List
+                    and (m, n + 2) in List
+                    and (m, n + 3) in List
+                    and (m, n + 4) in List):
                 return True
-            elif m < ROW - 4 and (m, n) in list and (m + 1, n) in list and (m + 2, n) in list and (
-                    m + 3, n) in list and (m + 4, n) in list:
+            elif (m < ROW - 4
+                    and (m, n) in List
+                    and (m + 1, n) in List
+                    and (m + 2, n) in List
+                    and (m + 3, n) in List
+                    and (m + 4, n) in List):
                 return True
-            elif m < ROW - 4 and n < ROW - 4 and (m, n) in list and (m + 1, n + 1) in list and (
-                    m + 2, n + 2) in list and (m + 3, n + 3) in list and (m + 4, n + 4) in list:
+            elif (m < ROW - 4
+                    and n < ROW - 4
+                    and (m, n) in List
+                    and (m + 1, n + 1) in List
+                    and (m + 2, n + 2) in List
+                    and (m + 3, n + 3) in List
+                    and (m + 4, n + 4) in List):
                 return True
-            elif m < ROW - 4 and n > 3 and (m, n) in list and (m + 1, n - 1) in list and (
-                    m + 2, n - 2) in list and (m + 3, n - 3) in list and (m + 4, n - 4) in list:
+            elif (m < ROW - 4
+                    and n > 3
+                    and (m, n) in List
+                    and (m + 1, n - 1) in List
+                    and (m + 2, n - 2) in List
+                    and (m + 3, n - 3) in List
+                    and (m + 4, n - 4) in List):
                 return True
     return False
 
