@@ -107,44 +107,40 @@ def evaluation(is_ai):
     total_score = 0
 
     if is_ai:
-        my_list = WhiteAi
-        enemy_list = BlackHuman
+        我下的棋 = WhiteAi
+        敌人下的棋 = BlackHuman
     else:
-        my_list = BlackHuman
-        enemy_list = WhiteAi
+        我下的棋 = BlackHuman
+        敌人下的棋 = WhiteAi
 
     # 算自己的得分
     score_all_arr = []  # 得分形状的位置，用于计算是否有有相交，如果有则得分翻倍
     my_score = 0
-    for pt in my_list:
-        m = pt[0]
-        n = pt[1]
-        my_score += cal_score(m, n, 0, 1, enemy_list, my_list, score_all_arr)
-        my_score += cal_score(m, n, 1, 0, enemy_list, my_list, score_all_arr)
-        my_score += cal_score(m, n, 1, 1, enemy_list, my_list, score_all_arr)
-        my_score += cal_score(m, n, -1, 1, enemy_list, my_list, score_all_arr)
+    for 棋子 in 我下的棋:
+        my_score += cal_score(棋子, (0, 1), 敌人下的棋, 我下的棋, score_all_arr)
+        my_score += cal_score(棋子, (1, 0), 敌人下的棋, 我下的棋, score_all_arr)
+        my_score += cal_score(棋子, (1, 1), 敌人下的棋, 我下的棋, score_all_arr)
+        my_score += cal_score(棋子, (-1, 1), 敌人下的棋, 我下的棋, score_all_arr)
 
     #  算敌人的得分，并减去
     score_all_arr_enemy = []
     enemy_score = 0
-    for pt in enemy_list:
-        m = pt[0]
-        n = pt[1]
-        enemy_score += cal_score(m, n, 0, 1, my_list,
-                                 enemy_list, score_all_arr_enemy)
-        enemy_score += cal_score(m, n, 1, 0, my_list,
-                                 enemy_list, score_all_arr_enemy)
-        enemy_score += cal_score(m, n, 1, 1, my_list,
-                                 enemy_list, score_all_arr_enemy)
-        enemy_score += cal_score(m, n, -1, 1, my_list,
-                                 enemy_list, score_all_arr_enemy)
+    for 棋子 in 敌人下的棋:
+        enemy_score += cal_score(棋子, (0, 1), 我下的棋,
+                                 敌人下的棋, score_all_arr_enemy)
+        enemy_score += cal_score(棋子, (1, 0), 我下的棋,
+                                 敌人下的棋, score_all_arr_enemy)
+        enemy_score += cal_score(棋子, (1, 1), 我下的棋,
+                                 敌人下的棋, score_all_arr_enemy)
+        enemy_score += cal_score(棋子, (-1, 1), 我下的棋,
+                                 敌人下的棋, score_all_arr_enemy)
 
     total_score = my_score - enemy_score*ratio*0.1
 
     return total_score
 
 
-def cal_score(m, n, x_decrict, y_derice, enemy_list, my_list, score_all_arr):
+def cal_score(坐标: tuple(int, int), direction: tuple(int, int), enemy_list:list(tuple(int,int)), my_list:list(tuple(int,int)), score_all_arr):
     '''
     计算(m,n)点的指定方向上棋盘形状的评估分值
     :param m: x坐标值
@@ -163,11 +159,11 @@ def cal_score(m, n, x_decrict, y_derice, enemy_list, my_list, score_all_arr):
     # 如果此方向上，该点已经有得分形状，不重复计算
     for item in score_all_arr:
         for pt in item[1]:
-            if m == pt[0] and n == pt[1] and x_decrict == item[2][0] and y_derice == item[2][1]:
+            if (坐标 == pt and direction == item[2]):
                 return 0
-
     # TODO: 在落子点指定方向上查找形状，并根据shape_score计分，将最大的score值与其对应shape赋值给max_score_shape,在END前补齐代码
     # ......
+
     # END:
 
     # 计算两个形状相交， 如两个活3相交， 得分增加。一个子的除外，无需改动
