@@ -1,5 +1,6 @@
 # *-* coding:utf-8 -*-
 from graphics import *
+
 #from math import *
 #import numpy as np
 
@@ -16,7 +17,7 @@ All = []  # all
 list_all = []  # 整个棋盘的点
 next_point = [14, 14]  # AI下一步最应该下的位置
 
-ratio = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
+RATIO = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
 DEPTH = 3  # 搜索深度，只能是单数。
 
 # 棋型的评估分数,1表示有子,0表示无子
@@ -135,12 +136,16 @@ def evaluation(is_ai):
         enemy_score += cal_score(棋子, (-1, 1), 我下的棋,
                                  敌人下的棋, score_all_arr_enemy)
 
-    total_score = my_score - enemy_score*ratio*0.1
+    total_score = my_score - enemy_score*RATIO*0.1
 
     return total_score
 
 
-def cal_score(坐标: tuple(int, int), direction: tuple(int, int), enemy_list:list(tuple(int,int)), my_list:list(tuple(int,int)), score_all_arr):
+def cal_score(location: tuple(int, int),
+              direction: tuple(int, int),
+              enemy_list: list(tuple(int, int)),
+              my_list: list(tuple(int, int)),
+              score_all_arr):
     '''
     计算(m,n)点的指定方向上棋盘形状的评估分值
     :param m: x坐标值
@@ -159,7 +164,7 @@ def cal_score(坐标: tuple(int, int), direction: tuple(int, int), enemy_list:li
     # 如果此方向上，该点已经有得分形状，不重复计算
     for item in score_all_arr:
         for pt in item[1]:
-            if (坐标 == pt and direction == item[2]):
+            if (location == pt and direction == item[2]):
                 return 0
     # TODO: 在落子点指定方向上查找形状，并根据shape_score计分，将最大的score值与其对应shape赋值给max_score_shape,在END前补齐代码
     # ......

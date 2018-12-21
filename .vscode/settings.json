@@ -1,0 +1,129 @@
+{
+    "files.autoSave": "afterDelay",
+    "editor.fontSize": 20,
+    "editor.fontFamily": "Camingocode,Consolas, 'Courier New', monospace",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.acceptSuggestionOnEnter": "off",
+    "git.alwaysShowStagedChangesResourceGroup": true,
+    "editor.renderWhitespace": "boundary",
+    "editor.wordWrap": "bounded",
+    "files.associations": {
+        "*.py": "python"
+    },
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "explorer.confirmDelete": false,
+    "editor.accessibilitySupport": "off",
+    "editor.minimap.enabled": false,
+    "python.autoComplete.addBrackets": true,
+    "workbench.iconTheme": "vscode-great-icons",
+    "terminal.integrated.rendererType": "dom",
+    "python.formatting.provider": "autopep8",
+    "terminal.integrated.cursorStyle": "line",
+    "editor.renderControlCharacters": true,
+    "breadcrumbs.enabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=all",
+        "--enable=F,E,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,bad-open-mode",
+        "--enable=W",
+        "--disable=W0614,W0401,W1619,W1633,W1618",
+        "--disable=W0603"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintUseMinimalCheckers": false,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "name": "Function call",
+                "scope": [
+                    "meta.function-call",
+                ],
+                "settings": {
+                    "foreground": "#07c7b7"
+                }
+            },
+            {
+                "name": "Function declarations",
+                "scope": [
+                    "entity.name.function",
+                    "support.function",
+                    "support.constant.handlebars"
+                ],
+                "settings": {
+                    "foreground": "#f7f755"
+                }
+            },
+            {
+                "name": "Types declaration and references",
+                "scope": [
+                    "meta.return-type",
+                    "support.class",
+                    "support.type",
+                    "entity.name.type",
+                    "entity.name.class",
+                    "storage.type.numeric.go",
+                    "storage.type.byte.go",
+                    "storage.type.boolean.go",
+                    "storage.type.string.go",
+                    "storage.type.uintptr.go",
+                    "storage.type.error.go",
+                    "storage.type.rune.go",
+                    "storage.type.cs",
+                    "storage.type.generic.cs",
+                    "storage.type.modifier.cs",
+                    "storage.type.variable.cs",
+                    "storage.type.annotation.java",
+                    "storage.type.generic.java",
+                    "storage.type.java",
+                    "storage.type.object.array.java",
+                    "storage.type.primitive.array.java",
+                    "storage.type.primitive.java",
+                    "storage.type.token.java",
+                    "storage.type.groovy",
+                    "storage.type.annotation.groovy",
+                    "storage.type.parameters.groovy",
+                    "storage.type.generic.groovy",
+                    "storage.type.object.array.groovy",
+                    "storage.type.primitive.array.groovy",
+                    "storage.type.primitive.groovy"
+                ],
+                "settings": {
+                    "foreground": "#4EC9B0"
+                }
+            },
+            {
+                "name": "Control flow keywords",
+                "scope": "keyword.control",
+                "settings": {
+                    "foreground": "#ff7e05"
+                }
+            },
+            {
+                "name": "Variable and parameter name",
+                "scope": [
+                    "variable",
+                    "meta.definition.variable.name",
+                    "support.variable",
+                    "entity.name.variable"
+                ],
+                "settings": {
+                    "foreground": "#06f096"
+                }
+            },
+            {
+                "scope": "constant",
+                "settings": {
+                    "foreground": "#a7e071",
+                    "fontStyle": ""
+                }
+            },
+            {
+                "scope": "keyword.operator",
+                "settings": {
+                    "foreground": "#fabc38"
+                }
+            }
+        ]
+    },
+}
