@@ -140,7 +140,7 @@ def evaluation(is_ai):
     return total_score
 
 
-def cal_score(坐标: tuple(int, int), direction: tuple(int, int), enemy_list:list(tuple(int,int)), my_list:list(tuple(int,int)), score_all_arr):
+def cal_score(location: (int, int), direction: (int, int), enemy_list: [(int, int)], my_list: [(int, int)], score_all_arr):
     '''
     计算(m,n)点的指定方向上棋盘形状的评估分值
     :param m: x坐标值
@@ -159,11 +159,17 @@ def cal_score(坐标: tuple(int, int), direction: tuple(int, int), enemy_list:li
     # 如果此方向上，该点已经有得分形状，不重复计算
     for item in score_all_arr:
         for pt in item[1]:
-            if (坐标 == pt and direction == item[2]):
+            if (location == pt and direction == item[2]):
                 return 0
     # TODO: 在落子点指定方向上查找形状，并根据shape_score计分，将最大的score值与其对应shape赋值给max_score_shape,在END前补齐代码
     # ......
-
+    tmp_score = 0
+    for (x, y) in [location-i*direction for i in range(5)]:
+        tmp_shape = (
+            1 if (x, y)+j*direction in my_list else 0 for j in range(5))
+        tmp_score = (j[0] for j in shape_score if tmp_shape == j[1])
+        if max_score_shape[0] < tmp_score:
+            max_score_shape = (tmp_score, tmp_shape)
     # END:
 
     # 计算两个形状相交， 如两个活3相交， 得分增加。一个子的除外，无需改动
