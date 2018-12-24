@@ -1,5 +1,6 @@
 # *-* coding:utf-8 -*-
 from graphics import *
+
 #from math import *
 #import numpy as np
 
@@ -8,15 +9,12 @@ from graphics import *
 GRID_WIDTH = 40
 COLUMN = 15
 ROW = 15
-
+CHESS_BOARD = [(i, j) for i in range(COLUMN+1) for j in range(ROW+1)]  # 整个棋盘的点
+next_point = (14, 14)  # AI下一步最应该下的位置
 BlackHuman = []  # 黑子 or 人类
 WhiteAi = []  # 白子 or AI
 All = []  # all
-
-list_all = []  # 整个棋盘的点
-next_point = [14, 14]  # AI下一步最应该下的位置
-
-ratio = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
+RATIO = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
 DEPTH = 3  # 搜索深度，只能是单数。
 
 # 棋型的评估分数,1表示有子,0表示无子
@@ -44,7 +42,25 @@ def ai_step():
     :return: next_point
     '''
     negamax(True, DEPTH, -99999999, 99999999)
-    return next_point[0], next_point[1]
+    return next_point
+
+
+def 落子(落子点: tuple, is_ai: bool):
+    global All, BlackHuman, WhiteAi
+    if is_ai:
+        WhiteAi.append(落子点)
+    else:
+        BlackHuman.append(落子点)
+    All.append(落子点)
+
+
+def 撤销落子(落子点: tuple, is_ai: bool):
+    global All, BlackHuman, WhiteAi
+    if is_ai:
+        WhiteAi.remove(落子点)
+    else:
+        BlackHuman.remove(落子点)
+    All.remove(落子点)
 
 
 def negamax(is_ai, depth, alpha, beta):
@@ -59,12 +75,28 @@ def negamax(is_ai, depth, alpha, beta):
     if game_win(BlackHuman) or game_win(WhiteAi) or depth == 0:
         return evaluation(is_ai)
 
-    blank_list = list(set(list_all).difference(set(All)))
-    order(blank_list)   # 搜索顺序排序  提高剪枝效率
+    # 以下，生成合法的落子点
+    blank_list = list(set(CHESS_BOARD).difference(set(All)))
+    order(blank_list)  # 搜索顺序排序  提高剪枝效率
+
     # TODO: 对每一个候选步进行递归并剪枝，将最后决策出的next_point赋值，将函数剩下部分补全
-    # .....
-    global next_point
-    next_point = blank_list[0]
+    bestmove=None
+    for 落子点 in blank_list:
+        落子(落子点, is_ai)
+        val = -negamax(not is_ai, depth - 1, -beta, -alpha)
+        撤销落子(落子点, is_ai)
+        if val >= beta:
+            return beta
+        if val > alpha:
+            alpha = val
+            bestmove = 落子点
+    if depth == DEPTH and bestmove is not None:
+        global next_point
+        next_point = bestmove
+    return alpha
+    # XXX: 把这一部分放到了前面的落子函数里面# .....
+    # global next_point
+    # next_point = blank_list[0]
 
 
 def order(blank_list):
@@ -135,12 +167,16 @@ def evaluation(is_ai):
         enemy_score += cal_score(棋子, (-1, 1), 我下的棋,
                                  敌人下的棋, score_all_arr_enemy)
 
-    total_score = my_score - enemy_score*ratio*0.1
+    total_score = my_score - enemy_score*RATIO*0.1
 
     return total_score
 
 
-def cal_score(location: (int, int), direction: (int, int), enemy_list: [(int, int)], my_list: [(int, int)], score_all_arr):
+def cal_score(location: '落子点(m, n)',
+              direction: 'vector (x, y)',
+              enemy_list: '场上敌子[ (int,int) ]',
+              my_list: ' 场上我子[ (int, int) ]',
+              score_all_arr)->float:
     '''
     计算(m,n)点的指定方向上棋盘形状的评估分值
     :param m: x坐标值
@@ -152,6 +188,7 @@ def cal_score(location: (int, int), direction: (int, int), enemy_list: [(int, in
     :param score_all_arr:得分形状的位置，用于计算是否有有相交，如果有则得分翻倍
     :return: 当前方向上的得分
     '''
+    
     add_score = 0  # 加分项
     # 在一个方向上， 只取最大的得分项
     max_score_shape = (0, None)
@@ -250,11 +287,6 @@ def gobangwin():
 def main_AI():
     ''' 人机对战函数 '''
     Window = gobangwin()
-
-    for i in range(COLUMN+1):
-        for j in range(ROW+1):
-            list_all.append((i, j))
-
     change = 0
     GameOver = False
     while not GameOver:
@@ -310,10 +342,6 @@ def main_Human():
     ''' 人人对战函数 '''
     win = gobangwin()
 
-    for i in range(COLUMN + 1):
-        for j in range(ROW + 1):
-            list_all.append((i, j))
-
     change = 0
     g = 0
     while g == 0:
@@ -364,4 +392,4 @@ def main_Human():
 
 if __name__ == '__main__':
     main_AI()
-    # main_Human()
+    #main_Human()
