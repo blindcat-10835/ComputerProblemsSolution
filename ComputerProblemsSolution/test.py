@@ -12,90 +12,93 @@ BlackHuman = []  # 黑子 or 人类
 WhiteAi = []  # 白子 or AI
 All = []  # all
 
-ChessBoard = [[0]*(COLUMN+1) for i in range(ROW+1)]  # 0 为空 1黑 2白
+#   这里注意python的引用机制，不可以
+#   g_ChessBoard = [[0]*(COLUMN+1)]*(ROW+1)
+
+g_ChessBoard = [[0]*(COLUMN+1) for i in range(ROW+1)]# 0 为空 1黑 2白
 RATIO = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
 DEPTH = 3  # 搜索深度，只能是单数。
-Directions = ((0, 1), (1, 0), (1, 1), (1, -1))  # 4个方向
+DIRECTIONS = ((0, 1), (1, 0), (1, 1), (1, -1))  # 4个方向
 
 
-def gobangWin():
+def gobangWindow():
     ''' 绘制基本棋盘界面 '''
-    win = GraphWin("this is a gobang game",
+    Win = GraphWin("this is a gobang game",
                    GRID_WIDTH * COLUMN, GRID_WIDTH * ROW)
-    win.setBackground("yellow")
+    Win.setBackground("yellow")
     i1 = 0
 
     while i1 <= GRID_WIDTH * COLUMN:
         l = Line(Point(i1, 0), Point(i1, GRID_WIDTH * COLUMN))
-        l.draw(win)
+        l.draw(Win)
         i1 = i1 + GRID_WIDTH
     i2 = 0
 
     while i2 <= GRID_WIDTH * ROW:
         l = Line(Point(0, i2), Point(GRID_WIDTH * ROW, i2))
-        l.draw(win)
+        l.draw(Win)
         i2 = i2 + GRID_WIDTH
-    return win
+    return Win
 
 
 def gameOver(location: tuple)->bool:
     (m, n) = location
-    global Directions, ChessBoard
-    for (x, y) in Directions:
+    global DIRECTIONS, g_ChessBoard
+    for (x, y) in DIRECTIONS:
         tmp = [(m + (i - 4) * x, n + (i - 4) * y) for i in range(9)]
         tmp = [(i, j) for i, j in tmp if 0 <=
                i <= ROW and 0 <= j <= COLUMN]
         for i in range(len(tmp) - 4):
-            ls = list(ChessBoard[tx][ty] for (tx, ty) in tmp[i:i + 5])
+            ls = list(g_ChessBoard[tx][ty] for (tx, ty) in tmp[i:i + 5])
             assert ls.__len__() == 5
             if (all(x == 1 for x in ls)
-                    or all(x == 3 for x in ls)):
+                    or all(x == 2 for x in ls)):
                 return True
 
     return False
 
 
-def main_Human():
+def main_gamePVP():
     ''' 人人对战函数 '''
-    win = gobangWin()
-    global ChessBoard
-    change = 0
+    Win = gobangWindow()
+    global g_ChessBoard
+    stepCount = 0
     GameOver = False
     while not GameOver:
 
-        p = win.getMouse()
+        p = Win.getMouse()
         (a, b) = round(
             (p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH)
-        if change % 2 == 0:  # 黑子
-            if (ChessBoard[a][b] == 0):
-                ChessBoard[a][b] = 1
-                change = change + 1
+        if stepCount % 2 == 0:  # 黑子
+            if (g_ChessBoard[a][b] == 0):
+                g_ChessBoard[a][b] = 1
+                stepCount = stepCount + 1
                 piece = Circle(Point(GRID_WIDTH * a, GRID_WIDTH * b), 16)
                 piece.setFill('black')
-                piece.draw(win)
+                piece.draw(Win)
                 GameOver = gameOver((a, b))
-        elif change % 2 == 1:  # 白子
-            if (ChessBoard[a][b] == 0):
-                ChessBoard[a][b] = 2
-                change = change + 1
 
+        elif stepCount % 2 == 1:  # 白子
+            if (g_ChessBoard[a][b] == 0):
+                g_ChessBoard[a][b] = 2
+                stepCount = stepCount + 1
                 piece = Circle(Point(GRID_WIDTH * a, GRID_WIDTH * b), 16)
                 piece.setFill('white')
-                piece.draw(win)
+                piece.draw(Win)
                 GameOver = gameOver((a, b))
 
-    if (change % 2 == 1):
-        message = Text(Point(100, 100), "black win.")
+    if (stepCount % 2 == 1):
+        message = Text(Point(100, 100), "Black win.")
     else:
         message = Text(Point(100, 100), "White win.")
     message.setFill("red")
-    message.draw(win)
+    message.draw(Win)
     message = Text(Point(100, 120), "Click anywhere to quit.")
     message.setFill("red")
-    message.draw(win)
-    win.getMouse()
-    win.close()
+    message.draw(Win)
+    Win.getMouse()
+    Win.close()
 
 
 if __name__ == '__main__':
-    main_Human()
+    main_gamePVP()
