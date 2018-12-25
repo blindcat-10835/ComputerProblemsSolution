@@ -1,16 +1,16 @@
 # *-* coding:utf-8 -*-
 from graphics import *
-
+from random import randint
 #from math import *
 #import numpy as np
 
 # 参数列表
 
 GRID_WIDTH = 40
-COLUMN = 15
-ROW = 15
+COLUMN = 10
+ROW = 10
 CHESS_BOARD = [(i, j) for i in range(COLUMN+1) for j in range(ROW+1)]  # 整个棋盘的点
-next_point = (14, 14)  # AI下一步最应该下的位置
+next_point = (5, 5)  # AI下一步最应该下的位置
 BlackHuman = []  # 黑子 or 人类
 WhiteAi = []  # 白子 or AI
 All = []  # all
@@ -80,7 +80,7 @@ def negamax(is_ai, depth, alpha, beta):
     order(blank_list)  # 搜索顺序排序  提高剪枝效率
 
     # TODO: 对每一个候选步进行递归并剪枝，将最后决策出的next_point赋值，将函数剩下部分补全
-    bestmove=None
+    bestmove = None
     for 落子点 in blank_list:
         落子(落子点, is_ai)
         val = -negamax(not is_ai, depth - 1, -beta, -alpha)
@@ -173,7 +173,7 @@ def evaluation(is_ai):
 
 
 def cal_score(location: '落子点(m, n)',
-              direction: 'vector (x, y)',
+              direction: '方向向量(x, y)',
               enemy_list: '场上敌子[ (int,int) ]',
               my_list: ' 场上我子[ (int, int) ]',
               score_all_arr)->float:
@@ -198,15 +198,27 @@ def cal_score(location: '落子点(m, n)',
         for pt in item[1]:
             if (location == pt and direction == item[2]):
                 return 0
+    
+    return randint(0,99999999)
     # TODO: 在落子点指定方向上查找形状，并根据shape_score计分，将最大的score值与其对应shape赋值给max_score_shape,在END前补齐代码
+
     # ......
-    tmp_score = 0
-    for (x, y) in [location-i*direction for i in range(5)]:
-        tmp_shape = (
-            1 if (x, y)+j*direction in my_list else 0 for j in range(5))
-        tmp_score = (j[0] for j in shape_score if tmp_shape == j[1])
+    (m, n) = location
+    (x, y) = direction
+    tmp_list = [(m - 4 * x + i * x, n - 4 * y + i * y) for i in range(9)]
+    tmp_list = [(i, j) for i, j in tmp_list if 0<=i <= ROW and 0<=j <= COLUMN]
+    for i in range(tmp_list.__len__() - 4):
+        tmp_shape = tuple(1 if (x, y) in my_list else 0 for (
+            x, y) in tmp_list[i:i + 5])
+
+        tmp_score = tuple(j[0] for j in shape_score if tmp_shape == j[1])
+        if tmp_score.__len__()==0 :
+            tmp_score = 0
+        else:
+            tmp_score = int(tmp_score[0])
         if max_score_shape[0] < tmp_score:
             max_score_shape = (tmp_score, tmp_shape)
+
     # END:
 
     # 计算两个形状相交， 如两个活3相交， 得分增加。一个子的除外，无需改动
@@ -392,4 +404,4 @@ def main_Human():
 
 if __name__ == '__main__':
     main_AI()
-    #main_Human()
+    # main_Human()
