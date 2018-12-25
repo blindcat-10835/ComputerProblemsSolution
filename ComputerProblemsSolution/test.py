@@ -120,7 +120,7 @@ def AI_step()->tuple:
     global g_LegalMoves  # 合法着点已实时生成
     orderMoves()  # 合法着点排序以剪枝
     #negamaxSearch(g_LegalMoves[0], DEPTH, -INF, INF)
-    return g_LegalMoves[randint(0, len(g_LegalMoves))]
+    return g_LegalMoves[randint(0, len(g_LegalMoves)-1)]
     return next_point
 
 
@@ -139,7 +139,7 @@ def main_gamePVE():
             (x, y) = (round((p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH))
         else:  # 白子
             (x, y) = AI_step()
-
+            assert g_ChessBoard[x][y] == 0,'AI_step 生成错误！'
         if g_ChessBoard[x][y] == 0:  # 有效落子点
             tryMove((x, y), isWhiteTurn)
             piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
