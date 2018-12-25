@@ -2,6 +2,7 @@
 from graphics import *
 from random import randint
 
+
 GRID_WIDTH = 40
 COLUMN = 15
 ROW = 15
