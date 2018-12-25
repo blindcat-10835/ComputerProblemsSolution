@@ -21,24 +21,26 @@ All = []  # all
 #   这里注意python的引用机制，不可以:
 #   g_ChessBoard = [[0]*(COLUMN+1)]*(ROW+1)
 g_ChessBoard = [[0] * (COLUMN + 1) for i in range(ROW + 1)]  # 0 为空 1黑 2白
-# FIXME: 不确定是否需要这个，后期可再优化
+g_AllSteps = []  # type:list(tuple (int, int)) 所有棋子的落子顺序
 g_LegalMoves = [(x, y)for y in range(COLUMN+1) for x in range(ROW+1)]
 DIRECTIONS = ((0, 1), (1, 0), (1, 1), (1, -1))  # 4个方向
 
 
 def tryMove(location: tuple,
             isWhite: bool):
-    global g_ChessBoard, g_LegalMoves
+    global g_ChessBoard, g_LegalMoves, g_AllSteps
     (x, y) = location
     g_ChessBoard[x][y] = 2 if isWhite else 1
-    g_LegalMoves.remove((x, y))
+    g_LegalMoves.remove(location)
+    g_AllSteps.append(location)
 
 
 def undoMove(location: tuple):
-    global g_ChessBoard, g_LegalMoves
+    global g_ChessBoard, g_LegalMoves, g_AllSteps
     (x, y) = location
     g_ChessBoard[x][y] = 0
     g_LegalMoves.append((x, y))
+    g_AllSteps.pop()
 
 
 def evaluation()->int:
@@ -82,7 +84,7 @@ def negamaxSearch(LastMove: tuple,
         if val > Alpha:
             Alpha = val
             BestMove = Move
-    if Depth == Depth and BestMove is not None:
+    if Depth == DEPTH and BestMove is not None:
         global next_point
         next_point = BestMove
     return Alpha
@@ -105,7 +107,8 @@ def orderMoves():
 
     '''
     global g_LegalMoves
-    g_LegalMoves.sort(key=lambda x :abs(x[0]-(COLUMN/2))+abs(x[1]-(ROW/2)),reverse=True )
+    g_LegalMoves.sort(key=lambda x: abs(
+        x[0]-(COLUMN/2))+abs(x[1]-(ROW/2)), reverse=True)
     # TODO：最后落子点周围？
 
 
@@ -116,8 +119,8 @@ def AI_step()->tuple:
     '''
     global g_LegalMoves  # 合法着点已实时生成
     orderMoves()  # 合法着点排序以剪枝
-    negamaxSearch(g_LegalMoves[0], DEPTH, -INF, INF)
-    # return g_LegalMoves[randint(0, len(g_LegalMoves))]
+    #negamaxSearch(g_LegalMoves[0], DEPTH, -INF, INF)
+    return g_LegalMoves[randint(0, len(g_LegalMoves))]
     return next_point
 
 
@@ -127,34 +130,26 @@ def main_gamePVE():
     global g_ChessBoard, g_LegalMoves
     StepCount = 0
     GameOver = False
+    isWhiteTurn = False
+    (x, y) = (0, 0)
     while not GameOver:
-        if StepCount % 2 == 0:  # 黑子
+        isWhiteTurn = (StepCount % 2 == 1)
+        if not isWhiteTurn:  # 黑子
             p = Window.getMouse()
             (x, y) = (round((p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH))
-            if (g_ChessBoard[x][y] == 0):
-                g_ChessBoard[x][y] = 1
-                g_LegalMoves.remove((x, y))
-                StepCount = StepCount + 1
-                piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
-                piece.setFill('black')
-                piece.draw(Window)
-                GameOver = gameOver((x, y))
-
-        elif StepCount % 2 == 1:  # 白子
+        else:  # 白子
             (x, y) = AI_step()
-            if (g_ChessBoard[x][y] == 0):
-                g_ChessBoard[x][y] = 2
-                g_LegalMoves.remove((x, y))
-                StepCount = StepCount + 1
-                piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
-                piece.setFill('white')
-                piece.draw(Window)
-                GameOver = gameOver((x, y))
 
-    if (StepCount % 2 == 1):
-        message = Text(Point(100, 100), "Black win.")
-    else:
-        message = Text(Point(100, 100), "White win.")
+        if g_ChessBoard[x][y] == 0:  # 有效落子点
+            tryMove((x, y), isWhiteTurn)
+            piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
+            piece.setFill('white' if isWhiteTurn else 'black')
+            StepCount = StepCount + 1
+            piece.draw(Window)
+            GameOver = gameOver((x, y))
+
+    message = Text(Point(100, 100),
+                   "White" if isWhiteTurn else "Black"+" win.")
     message.setFill("red")
     message.draw(Window)
     message = Text(Point(100, 120), "Click anywhere to quit.")
@@ -202,44 +197,35 @@ def gameOver(location: tuple)->bool:
 
 def main_gamePVP():
     ''' 人人对战函数 '''
-    Win = gobangWindow()
+    Window = gobangWindow()
     global g_ChessBoard
     StepCount = 0
     GameOver = False
+    isWhiteTurn = False
+    (x, y) = (0, 0)
     while not GameOver:
-
-        p = Win.getMouse()
+        isWhiteTurn = (StepCount % 2 == 1)
+        p = Window.getMouse()
         (x, y) = round(
             (p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH)
-        if (StepCount % 2 == 0  # 黑子
-                and g_ChessBoard[x][y] == 0):
-            g_ChessBoard[x][y] = 1
-            StepCount = StepCount + 1
+
+        if g_ChessBoard[x][y] == 0:  # 有效落子点
+            tryMove((x, y), isWhiteTurn)
             piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
-            piece.setFill('black')
-            piece.draw(Win)
+            piece.setFill('white' if isWhiteTurn else 'black')
+            StepCount = StepCount + 1
+            piece.draw(Window)
             GameOver = gameOver((x, y))
 
-        elif (StepCount % 2 == 1  # 白子
-              and g_ChessBoard[x][y] == 0):
-            g_ChessBoard[x][y] = 2
-            StepCount = StepCount + 1
-            piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
-            piece.setFill('white')
-            piece.draw(Win)
-            GameOver = gameOver((x, y))
-
-    if (StepCount % 2 == 1):
-        message = Text(Point(100, 100), "Black win.")
-    else:
-        message = Text(Point(100, 100), "White win.")
+    message = Text(Point(100, 100),
+                   "White" if isWhiteTurn else "Black"+" win.")
     message.setFill("red")
-    message.draw(Win)
+    message.draw(Window)
     message = Text(Point(100, 120), "Click anywhere to quit.")
     message.setFill("red")
-    message.draw(Win)
-    Win.getMouse()
-    Win.close()
+    message.draw(Window)
+    Window.getMouse()
+    Window.close()
 
 
 if __name__ == '__main__':
