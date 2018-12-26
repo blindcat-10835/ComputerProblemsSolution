@@ -80,20 +80,7 @@ def negamax(is_ai, depth, alpha, beta):
     order(blank_list)  # 搜索顺序排序  提高剪枝效率
 
     # TODO: 对每一个候选步进行递归并剪枝，将最后决策出的next_point赋值，将函数剩下部分补全
-    bestmove = None
-    for 落子点 in blank_list:
-        落子(落子点, is_ai)
-        val = -negamax(not is_ai, depth - 1, -beta, -alpha)
-        撤销落子(落子点, is_ai)
-        if val >= beta:
-            return beta
-        if val > alpha:
-            alpha = val
-            bestmove = 落子点
-    if depth == DEPTH and bestmove is not None:
-        global next_point
-        next_point = bestmove
-    return alpha
+    
     # XXX: 把这一部分放到了前面的落子函数里面# .....
     # global next_point
     # next_point = blank_list[0]
@@ -199,7 +186,7 @@ def cal_score(location: '落子点(m, n)',
             if (location == pt and direction == item[2]):
                 return 0
     
-    return randint(0,99999999)
+    
     # TODO: 在落子点指定方向上查找形状，并根据shape_score计分，将最大的score值与其对应shape赋值给max_score_shape,在END前补齐代码
 
     # ......

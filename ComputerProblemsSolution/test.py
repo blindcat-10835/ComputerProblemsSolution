@@ -9,13 +9,10 @@ ROW = 15
 INF = 999_999_999
 RATIO = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
 DEPTH = 3  # 搜索深度，只能是单数。
-CHESS_BOARD = [(i, j) for i in range(COLUMN + 1) for j in range(ROW + 1)]
+
 # 整个棋盘的点
 #
-next_point = (5, 5)  # AI下一步最应该下的位置
-BlackHuman = []  # 黑子 or 人类
-WhiteAi = []  # 白子 or AI
-All = []  # all
+
 
 
 #   这里注意python的引用机制，不可以:
@@ -119,8 +116,8 @@ def AI_step()->tuple:
     '''
     global g_LegalMoves  # 合法着点已实时生成
     orderMoves()  # 合法着点排序以剪枝
-    #negamaxSearch(g_LegalMoves[0], DEPTH, -INF, INF)
-    return g_LegalMoves[randint(0, len(g_LegalMoves)-1)]
+    negamaxSearch(g_LegalMoves[0], DEPTH, -INF, INF)
+    #return g_LegalMoves[randint(0, len(g_LegalMoves)-1)]
     return next_point
 
 
