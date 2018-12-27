@@ -2,60 +2,67 @@
 from graphics import *
 # from random import randint
 
-#棋盘相关
+# 棋盘相关
 GRID_WIDTH = 40
-COLUMN = 15
-ROW = 15
+COLUMN = 14
+ROW = 14
 
-#搜索相关
-INF = 999_999_999
+# 搜索相关
+INF = 100000
 RATIO = 1  # 进攻的系数(可调)：大于1 进攻型，小于1 防守型
-DEPTH = 3  # 搜索深度，只能是单数。
+DEPTH = 2  # 搜索深度，只能是单数。
 DIRECTIONS = ((0, 1), (1, 0), (1, 1), (1, -1))  # 4个方向
 
 SCORE_DICT = {
-# '''
-# {'0': 'empty',
-#  '+': 'me',
-#  '-': 'enermy',
-#  '?': '+0',
-#  '*': '+0-',
-#  }
-#  '''
+    # '''
+    # {'0': 'empty',
+    #  '+': 'me',
+    #  '-': 'enermy',
+    #  '?': '+0',
+    #  '*': '+0-',
+    #  }
+    #  '''
     '+++++': INF,
+    '0++++0': 10000,  # 活4
 
-    '0++++0': INF-1,  # 活4
+    '-++++0': 400,  # 死4
+    '+++0+': 400,
+    '+0+++': 400,
+    '++0++': 400,
+    '++++-': 400,
+    '-++++': 400,
 
-    '-++++0': INF//3,  # 死4
-    '+++0+': INF//3,
-    '+0+++': INF//3,
-    '++0++': INF//3,
+    '+++00': 200,  # 活3
+    '0+++0': 200,
+    '00+++': 200,
 
-    '+++00': INF//3,  # 活3
-    '0+++0': INF//3,
-    '00+++': INF//3,
+    '++0+': 40,  # 死3
 
-    '++0+': 5000,  # 死3
+    '0++0': 20,  # 活2
 
-    '0++0': 200,  # 活2
-
-    }
-#棋势评估表，根据预设的小字典SCORE_DICT,
-#生成包含所有情形的大字典g_ScoreDict
+    '----+': 10000,  # 阻止得分
+    '+----': 400,
+    '+---': 100,
+    '---+': 100,
+    '--+': 10,
+    '+--': 10,
+}
+# 棋势评估表，根据预设的小字典SCORE_DICT,
+# 生成包含所有情形的大字典g_ScoreDict
 g_ScoreDict = {}
 
 # 棋盘状态
-g_ChessBoard = [[0] * (COLUMN + 1) for i in range(ROW + 1)]  
+g_ChessBoard = [[0] * (COLUMN + 1) for i in range(ROW + 1)]
 BLACK = 1
 WHITE = -1
 EMPTY = 0
 
-#双方落子步骤
+# 双方落子步骤
 g_AllSteps = []  # type:list(tuple (int, int))
-# 
+#
 # isWhiteTurn= len(g_AllSteps)%2==1
 
-#合法落子点/棋盘剩余空点
+# 合法落子点/棋盘剩余空点
 
 #   这里注意python的引用机制，不可以:
 #   g_ChessBoard = [[0]*(COLUMN+1)]*(ROW+1)
@@ -88,17 +95,16 @@ def generateScoreDict():
     ls_shape = [f'{int(TenToThree(i)):06}' for i in range(3 ** 6)]
     ls_shape = [i.translate(i.maketrans('12', '-+')) for i in ls_shape]
 
-    global g_ScoreDict,SCORE_DICT
+    global g_ScoreDict, SCORE_DICT
     ls_score = []
-    for i in ls_shape:
-        t = 0
-        if i.count('-') >= 2:
-            t = 0
-        else:
-            for x, y in SCORE_DICT.items():
-                if x in i and t <= y:
-                    t = y
-        ls_score.append(t)
+    for i in ls_shape:  # i形如'++-0++'
+        t_score = -1000
+        t_shape = ''
+        for key, value in SCORE_DICT.items():
+            if key in i and len(key) > len(t_shape):
+                t_score = value
+                t_shape = key
+        ls_score.append(t_score)
     g_ScoreDict = dict(zip(ls_shape, ls_score))
 
 
@@ -125,31 +131,41 @@ def evaluation()->float:
     根据此时的g_ChessBoard，g_AllSteps计算局面评估函数，
     返回局面得分 float
     '''
-    global DIRECTIONS, g_ScoreDict, g_ChessBoard, g_AllSteps
+    global g_ScoreDict, g_ChessBoard, g_AllSteps
     if (gameOver()):
         return INF
     # 这里是要评价已落下的子，所以偶数时，是表示刚下了一步白棋，
     # 而不同于其他部分表示轮到白棋下而白棋未落子
     isWhiteTurn = (len(g_AllSteps) % 2 == 0)
-    print(isWhiteTurn)
-    t_dict = {
-        # 白方回合，则白子为己'+',黑子为敌'-'
-        # 黑方回合，则黑子为己'+',白子为敌'-'
-        True:
-        {
-            EMPTY: '0',
-            BLACK: '-',
-            WHITE:'+',
-        },
-        False:
-        {
-            EMPTY: '0',
-            BLACK: '+',
-            WHITE: '-',
-        }
+    MyScore = calculateMyScore(g_AllSteps[-1], isWhiteTurn)
+    # x,y=g_AllSteps.pop()
+    EnermyScore = calculateMyScore(g_AllSteps[-2], not isWhiteTurn)
+    # g_AllSteps.append((x,y))
+    return MyScore-EnermyScore*RATIO
+
+
+t_dict = {
+    # 白方回合，则白子为己'+',黑子为敌'-'
+    # 黑方回合，则黑子为己'+',白子为敌'-'
+    True:
+    {
+        EMPTY: '0',
+        BLACK: '-',
+        WHITE: '+',
+    },
+    False:
+    {
+        EMPTY: '0',
+        BLACK: '+',
+        WHITE: '-',
     }
-    TotalScore = 0
-    (m, n) = g_AllSteps[-1]
+}
+
+
+def calculateMyScore(Location, isWhiteTurn):
+    (m, n) = Location
+    global DIRECTIONS
+    MyScore = 0
     for (x, y) in DIRECTIONS:
         tmp = [(m + (i - 4) * x, n + (i - 4) * y) for i in range(9)]
         tmp = [(i, j) for i, j in tmp if 0 <= i <= ROW and 0 <= j <= COLUMN]
@@ -157,9 +173,8 @@ def evaluation()->float:
             ls = ''
             for (tx, ty) in tmp[i:i + 6]:
                 ls += t_dict[isWhiteTurn][g_ChessBoard[tx][ty]]
-            if TotalScore < g_ScoreDict[ls]:
-                TotalScore = g_ScoreDict[ls]
-    return TotalScore
+            MyScore += g_ScoreDict[ls]
+    return MyScore
 
 
 def negamaxSearch(
@@ -219,7 +234,6 @@ def AI_step()->tuple:
     global g_LegalMoves, g_NextMove  # 合法着点已实时生成
     orderMoves()  # 合法着点排序以剪枝
     val = negamaxSearch(DEPTH, -INF, INF)
-    print(val, g_NextMove)
     return g_NextMove
 
 
@@ -309,10 +323,10 @@ def main_gamePVP():
         p = Window.getMouse()
         (x, y) = round(
             (p.getX()) / GRID_WIDTH), round((p.getY()) / GRID_WIDTH)
-
         if g_ChessBoard[x][y] == EMPTY:  # 有效落子点
+            print((x, y))
             tryMove((x, y))
-            print(evaluation()) if len(g_AllSteps) >= 2 else 0
+            print('score:', evaluation()) if len(g_AllSteps) >= 2 else 0
             piece = Circle(Point(GRID_WIDTH * x, GRID_WIDTH * y), 16)
             piece.setFill('white' if isWhiteTurn else 'black')
             StepCount = StepCount + 1
@@ -332,5 +346,5 @@ def main_gamePVP():
 
 if __name__ == '__main__':
     generateScoreDict()
-    main_gamePVP()
-    # main_gamePVE()
+    # main_gamePVP()
+    main_gamePVE()
